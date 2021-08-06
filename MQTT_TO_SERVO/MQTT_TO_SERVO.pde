@@ -11,7 +11,9 @@ import mqtt.*;
 import java.util.*;
 
 import controlP5.*;
+int knobValue = 100;
 
+Knob myKnobA;
 ControlP5 cp5;
 String textValue = "";
 int currentServo;
@@ -21,7 +23,8 @@ int y = 0;
 
 void setup() {
   client = new MQTTClient(this);
-  client.connect("mqtt://public:public@public.cloud.shiftr.io", "cap");
+  //client.connect("mqtt://public:public@public.cloud.shiftr.io", "cap");
+  client.connect("mqtt://192.168.0.60","p55");
   size(700, 400);
   PFont font = createFont("arial", 20);
   textFont(font);
@@ -42,7 +45,13 @@ void setup() {
     .setFont(createFont("arial", 20))
     .setAutoClear(false)
     ;
-
+  myKnobA = cp5.addKnob("knob")
+               .setRange(0,180)
+               .setValue(0)
+               .setPosition(250,50)
+               .setRadius(50)
+               .setDragDirection(Knob.VERTICAL)
+               ;
   cp5.addBang("clear")
     .setPosition(240, 170)
     .setSize(80, 40)
@@ -73,6 +82,33 @@ public void clear() {
   cp5.get(Textfield.class, "positions").clear();
   cp5.get(Textfield.class, "intervals").clear();
 }
+void knob(int theValue) {
+   String servoId = str(currentServo);
+  //first check our lists are the same length
+  
+  String positions = cp5.get(Textfield.class, "positions").getText();
+  String intervals = cp5.get(Textfield.class, "intervals").getText();
+  int numPositions = splitTokens(positions, ",").length;
+  int numIntervals = splitTokens(intervals, ",").length;
+
+   String serialisedJSON =  "{\"servoId\":";
+    
+    serialisedJSON+=servoId;
+    serialisedJSON+=",\"arrLength\":";
+    serialisedJSON+=str(1);
+    serialisedJSON+=",\"setPos\":";
+    serialisedJSON+="1";
+    serialisedJSON+=",\"positions\":[";
+    serialisedJSON+=str(theValue);
+    serialisedJSON+="],\"intervals\":[";
+    serialisedJSON+=intervals;
+    serialisedJSON+="]}";
+    
+    println(serialisedJSON);
+    client.publish("/kennedy",serialisedJSON);
+ 
+}
+
 public void send() {
 
   String servoId = str(currentServo);
@@ -83,12 +119,14 @@ public void send() {
   int numPositions = splitTokens(positions, ",").length;
   int numIntervals = splitTokens(intervals, ",").length;
 
-  if (numPositions==numIntervals) {
+  if (numPositions==numIntervals && numPositions>1) {
     String serialisedJSON =  "{\"servoId\":";
     
     serialisedJSON+=servoId;
     serialisedJSON+=",\"arrLength\":";
-    serialisedJSON+=str(numPositions);
+    serialisedJSON+=str(numPositions-1);
+    serialisedJSON+=",\"setPos\":";
+    serialisedJSON+="0";
     serialisedJSON+=",\"positions\":[";
     serialisedJSON+=positions;
     serialisedJSON+="],\"intervals\":[";
@@ -97,7 +135,24 @@ public void send() {
     
     println(serialisedJSON);
     client.publish("/kennedy",serialisedJSON);
-  } else {
+  } else if(numPositions==1){
+    
+   String serialisedJSON =  "{\"servoId\":";
+    
+    serialisedJSON+=servoId;
+    serialisedJSON+=",\"arrLength\":";
+    serialisedJSON+=str(numPositions);
+    serialisedJSON+=",\"setPos\":";
+    serialisedJSON+="1";
+    serialisedJSON+=",\"positions\":[";
+    serialisedJSON+=positions;
+    serialisedJSON+="],\"intervals\":[";
+    serialisedJSON+=intervals;
+    serialisedJSON+="]}";
+    
+    println(serialisedJSON);
+    client.publish("/kennedy",serialisedJSON);
+  }else {
     println("lists are different lengths, try again");
   }
 }
@@ -156,16 +211,16 @@ void keyPressed() {
 void mouseDragged() {
   //println(mouseX, mouseY);
   //I want to make a topic called 'mouseX' and send the current value of the x position of the mouse
-  client.publish("/mouseX", str(mouseX));
-  client.publish("/mouseY", str(mouseY));
+  //client.publish("/mouseX", str(mouseX));
+  //client.publish("/mouseY", str(mouseY));
 }
 
 
 void clientConnected() {
   println("client connected");
   //I want to subscribe to these messages
-  client.subscribe("/mouseX");
-  client.subscribe("/mouseY");
+  //client.subscribe("/mouseX");
+  //client.subscribe("/mouseY");
 }
 
 void messageReceived(String topic, byte[] payload) {

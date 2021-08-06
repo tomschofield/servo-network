@@ -107,36 +107,43 @@ void messageReceived(String &topic, String &payload) {
   // const char* servoId = doc["servoId"];
   int  servoId = doc["servoId"];
   int arrLength = doc["arrLength"];
+  int  setPos = doc["setPos"];
+  if (setPos == 0) {
+    Serial.print("servoId : ");
+    Serial.println(servoId);
 
-  Serial.print("servoId : ");
-  Serial.println(servoId);
+    Serial.print("arrLength : ");
+    Serial.println(arrLength);
 
-  Serial.print("arrLength : ");
-  Serial.println(arrLength);
+    int servoPositions [20] ;
+    int servoIntervals [20] ;
 
-  int servoPositions [20] ;
-  int servoIntervals [20] ;
+    for (int i = 0; i < 20; i++) {
+      servoPositions[i] = -1;
+      servoIntervals[i] = -1;
+    }
 
-  for (int i = 0; i < 20; i++) {
-    servoPositions[i] = -1;
-    servoIntervals[i] = -1;
+
+    for (int i = 0; i < arrLength; i++) {
+      servoPositions[i] = doc["positions"][i];
+      servoIntervals[i] = doc["intervals"][i];
+
+      Serial.print("index : ");
+      Serial.print(i);
+      Serial.print("position : ");
+      Serial.print(servoPositions[i]);
+      Serial.print(", interval : ");
+      Serial.println(servoIntervals[i]);
+    }
+
+
+    servos[servoId].setArrays(servoPositions, servoIntervals, arrLength);
+    servos[servoId].setUpdate(true);
   }
-
-
-  for (int i = 0; i < arrLength; i++) {
-    servoPositions[i] = doc["positions"][i];
-    servoIntervals[i] = doc["intervals"][i];
-
-    Serial.print("index : ");
-    Serial.print(i);
-    Serial.print("position : ");
-    Serial.print(servoPositions[i]);
-    Serial.print(", interval : ");
-    Serial.println(servoIntervals[i]);
+  else if (setPos == 1) {
+    servos[servoId].setPos(doc["positions"][0]);
+    servos[servoId].setUpdate(false);
   }
-
-
-  servos[servoId].setArrays(servoPositions, servoIntervals, 8);
 }
 void setup() {
   Serial.begin(115200);
@@ -145,11 +152,12 @@ void setup() {
 
   // Note: Local domain names (e.g. "Computer.local" on OSX) are not supported
   // by Arduino. You need to set the IP address directly.
-  client.begin("public.cloud.shiftr.io", net);
+//  client.begin("public.cloud.shiftr.io", net);
+  client.begin("192.168.0.60", net);
   client.onMessage(messageReceived);
   connectAndSubscribe();
 
-  
+
   pwm.begin();
   LEDpwm.begin();
   LEDpwm.setPWMFreq(60);
@@ -163,13 +171,13 @@ void setup() {
 
     //this is where I assign the servo list of positions and intervals
     servos[i].setArrays(servoPositionsA, servoIntervalsA, 3);
-    servoIntervalsA[2]+=1500;
+    servoIntervalsA[2] += 1500;
   }
-//  //set the arrays for our first servo
-//  servos[0].setArrays(servoPositionsA, servoIntervalsA, 4);
-//  //set the arrays for our second servo
-//  servos[1].setArrays(servoPositionsA, servoIntervalsA, 4);
-  
+  //  //set the arrays for our first servo
+  //  servos[0].setArrays(servoPositionsA, servoIntervalsA, 4);
+  //  //set the arrays for our second servo
+  //  servos[1].setArrays(servoPositionsA, servoIntervalsA, 4);
+
   led.setArrays(servoPositionsA, servoIntervalsA, 3);
 }
 
@@ -177,21 +185,37 @@ void setup() {
 
 void loop() {
   client.loop();
+  //once every 10 secs
+  if( millis() % (10 * 1000) ){
+   // check if client is connected
+   if(client.connected()){
+  Serial.println("client connected");
+    
+   }else{
+    Serial.println("client disconnected");
+   }
+    
+  }
 
-  
   for (int i = 0; i < NUM_SERVOS; i++) {
 
     //servos[i].updateByArrayPos();
-    servos[i].updateByInterpolatedArrayPos();
+    if (servos[i].getUpdate()) {
+      servos[i].updateByInterpolatedArrayPos();
+
+//      Serial.print(i);
+//      Serial.print(" : ");
+//      Serial.println(servos[i].getPulseLength());
+    }
     pwm.setPWM(i, 0, servos[i].getPulseLength());
   }
 
-  
 
-  
-  led.updateByInterpolatedArrayPos();
-  int servoPWM = led.getLEDPulseLength();
-  LEDpwm.setPWM(5, 0, servoPWM);
+
+
+  //  led.updateByInterpolatedArrayPos();
+  //  int servoPWM = led.getLEDPulseLength();
+  //  LEDpwm.setPWM(5, 0, servoPWM);
 
 
   delay(10);
