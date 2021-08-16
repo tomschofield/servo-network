@@ -20,6 +20,7 @@ ServoObject::ServoObject(int _speed, int _pos, int _servoMin, int _servoMax, int
     index = 0;
     subDivisionIndex = 0;
     numSubdivisions = 100;
+    servoUpdate = true;
     // posList = _posList;
 }
 void ServoObject::setArrays(int *_posList, int *_intervalList, int _numPositions)
@@ -45,7 +46,7 @@ void ServoObject::setArrays(int *_posList, int *_intervalList, int _numPositions
 
     startTime = millis();
 }
-void ServoObject::update()
+void ServoObject::updateOsc()
 {
     if (millis() - startTime > inc)
     {
@@ -55,7 +56,15 @@ void ServoObject::update()
         startTime = millis();
     }
 }
-
+void ServoObject::setPos(int _pos){
+    pos = _pos;
+}
+void ServoObject::setUpdate(bool _update){
+    servoUpdate = _update;
+}
+boolean ServoObject::getUpdate(){
+    return servoUpdate;
+}
 int ServoObject::getPulseLength()
 {
     return map(pos, 0, 180, servoMin, servoMax);
@@ -143,12 +152,17 @@ void ServoObject::updateByInterpolatedArrayPos()
         subDivisionIndex++;
         if (subDivisionIndex == numSubdivisions - 1 )
         {
+           // Serial.print("moving to position: ");
             index++;
             subDivisionIndex=0;
             if (index >= numPositions)
             {
                 index = 0;
             }
+       //  Serial.print(index);
+      //  Serial.print(", i.e.: ");
+      //     Serial.println(posList[index]);
+
         }
         startTime = millis();
     }

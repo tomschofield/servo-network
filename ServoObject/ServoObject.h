@@ -13,13 +13,17 @@ class ServoObject
 {
 public:
   ServoObject(int _speed, int _pos, int _servoMin, int _servoMax, int _inc);
-  void update();
+  void updateOsc();
   void updateByArrayPos();
   void updateByInterpolatedArrayPos();
   void setArrays(int *_posList, int *_intervalList, int _numPositions);
+  void setPos(int _pos);
   void reset(int _speed, int _pos, int _servoMin, int _servoMax, int _inc);
   int getPulseLength();
   int getLEDPulseLength();
+  void setUpdate(bool _update);
+  boolean getUpdate();
+  
 private:
   int speed;
   int inc;
@@ -35,6 +39,8 @@ private:
   int servoMax;
   int index;
   int numPositions;
+  boolean servoUpdate;
+  
 };
 
 #endif
