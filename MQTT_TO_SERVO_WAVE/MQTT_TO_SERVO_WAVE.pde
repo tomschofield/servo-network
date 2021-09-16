@@ -21,7 +21,9 @@ MQTTClient client;
 int x = 0;
 int y = 0;
 int knobValue = 0;
+int [] wavePattern = {0, 4, 1, 5, 8, 9, 6, 2, 12, 13, 10, 7, 3, 14, 11, 16, 17, 18, 15, 21, 22, 19, 20, 25, 26, 23, 24, 29, 30, 27, 28, 31};
 void setup() {
+  println(wavePattern.length);
   client = new MQTTClient(this);
   client.connect("mqtt://public:public@public.cloud.shiftr.io", "cap");
   //client.connect("mqtt://192.168.0.60", "p55");
@@ -63,12 +65,12 @@ void setup() {
     .setSize(80, 40)
     .getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER)
     ;
-    
-    
-    String [] servoIds = new String[32];
-    for(int i=0;i<32;i++){
-      servoIds[i] = str(i);
-    }
+
+
+  String [] servoIds = new String[32];
+  for (int i=0; i<32; i++) {
+    servoIds[i] = str(i);
+  }
   List l = Arrays.asList(servoIds);
   /* add a ScrollableList, by default it behaves like a DropdownList */
   cp5.addScrollableList("servoId")
@@ -92,22 +94,77 @@ void keyReleased() {
 
   int numServos = 32;
 
-  for (int i=0; i<numServos; i++) {
-    String serialisedJSON =  "{\"servoId\":";
+  //for (int j=0; j<10; j++) {
+  //  int angle =18;
+  //  for (int i=0; i<numServos; i++) {
+  //    String serialisedJSON =  "{\"servoId\":";
 
-    serialisedJSON+=str(i);
-    serialisedJSON+=",\"arrLength\":";
-    serialisedJSON+=str(numPositions);
-    serialisedJSON+=",\"setPos\":";
-    serialisedJSON+="1";
-    serialisedJSON+=",\"positions\":[";
-    serialisedJSON+=str(knobValue);
-    serialisedJSON+="],\"intervals\":[";
-    serialisedJSON+=intervals;
-    serialisedJSON+="]}";
+  //    serialisedJSON+=str(wavePattern[i]);
+  //    serialisedJSON+=",\"arrLength\":";
+  //    serialisedJSON+=str(numPositions);
+  //    serialisedJSON+=",\"setPos\":";
+  //    serialisedJSON+="1";
+  //    serialisedJSON+=",\"positions\":[";
+  //    serialisedJSON+= str( angle * j ) ;//str(knobValue);
+  //    serialisedJSON+="],\"intervals\":[";
+  //    serialisedJSON+=intervals;
+  //    serialisedJSON+="]}";
 
-    println(serialisedJSON);
-    client.publish("/kennedy", serialisedJSON);
+  //    println(serialisedJSON);
+  //    client.publish("/kennedy", serialisedJSON);
+  //    delay(50);
+  //  }
+  //  delay(500);
+  //}
+  //for (int j=10; j>=0; j--) {
+  //  int angle =18;
+  //  for (int i=0; i<numServos; i++) {
+  //    String serialisedJSON =  "{\"servoId\":";
+
+  //    serialisedJSON+=str(wavePattern[i]);
+  //    serialisedJSON+=",\"arrLength\":";
+  //    serialisedJSON+=str(numPositions);
+  //    serialisedJSON+=",\"setPos\":";
+  //    serialisedJSON+="1";
+  //    serialisedJSON+=",\"positions\":[";
+  //    serialisedJSON+= str( angle * j ) ;//str(knobValue);
+  //    serialisedJSON+="],\"intervals\":[";
+  //    serialisedJSON+=intervals;
+  //    serialisedJSON+="]}";
+
+  //    println(serialisedJSON);
+  //    client.publish("/kennedy", serialisedJSON);
+  //    delay(50);
+  //  }
+  //  delay(500);
+  //}
+  for (int j=0; j<10; j++) {
+    int angle =18;
+    for (int i=0; i<numServos; i++) {
+      String serialisedJSON =  "{\"servoId\":";
+
+      serialisedJSON+=str(wavePattern[i]);
+      serialisedJSON+=",\"arrLength\":";
+      serialisedJSON+=str(numPositions);
+      serialisedJSON+=",\"setPos\":";
+      serialisedJSON+="1";
+      serialisedJSON+=",\"positions\":[";
+      if(i%2==0){
+      serialisedJSON+= str( angle * j ) ;//str(knobValue);
+      }
+      else{
+        serialisedJSON+= str( angle * (10-j) ) ;//str(knobValue);
+      }
+      
+      serialisedJSON+="],\"intervals\":[";
+      serialisedJSON+=intervals;
+      serialisedJSON+="]}";
+
+      println(serialisedJSON);
+      client.publish("/kennedy", serialisedJSON);
+      delay(50);
+    }
+    delay(500);
   }
 }
 
