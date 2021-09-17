@@ -8,8 +8,8 @@
 
 //
 
-const char ssid[] = "x-NPTxP";
-const char pass[] = "x";
+const char ssid[] = "TP-";
+const char pass[] = "";
 //const char ssid[] = "x";
 //const char pass[] = "x";
 WiFiClient net;
@@ -124,7 +124,7 @@ void connectAndSubscribe() {
 
   Serial.println("\nconnected!");
 
-  client.subscribe("/kennedy");
+  client.subscribe("/kennedyLEFTHANDSIDE");
 
 }
 
@@ -238,6 +238,7 @@ void loop() {
 
     } else {
       Serial.println("client disconnected");
+      connectAndSubscribe();
     }
 
   }

@@ -36,11 +36,11 @@ void setup() {
   client.connect("mqtt://public:public@public.cloud.shiftr.io", "p55");
   //client.connect("mqtt://192.168.0.60", "p55");
   size(700, 400);
-  PFont font = createFont("arial", 20);
+  PFont font = createFont("arial", 48);
   textFont(font);
 
   font = loadFont("ACaslonPro-Bold-48.vlw");
-  textFont(font, 48);
+  textFont(font, 72);
   if (useSerial) {
     // Print a list of the serial ports, for debugging purposes:
     printArray(Serial.list());

@@ -7,8 +7,8 @@
 //
 
 //
-const char ssid[] = "x";
-const char pass[] = "x";
+const char ssid[] = "TP-Link_14DD";
+const char pass[] = "NKconcert99";
 WiFiClient net;
 MQTTClient client;
 

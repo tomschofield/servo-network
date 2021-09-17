@@ -6,8 +6,8 @@
 
 //
 
-const char ssid[] = "";
-const char pass[] = "";
+const char ssid[] = "TP-Link_14DD";
+const char pass[] = "NKconcert99";
 //const char ssid[] = "x";
 //const char pass[] = "x";
 WiFiClient net;
@@ -35,9 +35,9 @@ MQTTClient client;
  ****************************************************/
 
 #include <Wire.h>
-const int pirPin1 = 27;                 // PIR Out pin
+const int pirPin1 = 25;                 // PIR Out pin
 const int pirPin2 = 26;                 // PIR Out pin
-const int pirPin3 = 25;                 // PIR Out pin
+const int pirPin3 = 27;                 // PIR Out pin
 
 
 
@@ -75,7 +75,7 @@ void messageReceived(String &topic, String &payload) {
   //Serial.println("message");
 }
 void IRAM_ATTR detectsMovement1() {
-  //Serial.println("PIR1 change");
+  Serial.println("PIR1 change");
   if (pirStat1 == 0) {
     pirStat1 = 1;
   }
@@ -86,7 +86,7 @@ void IRAM_ATTR detectsMovement1() {
 }
 
 void IRAM_ATTR detectsMovement2() {
-  //Serial.println("PIR2 change");
+  Serial.println("PIR2 change");
   if (pirStat2 == 0) {
     pirStat2 = 1;
   }
@@ -96,7 +96,7 @@ void IRAM_ATTR detectsMovement2() {
 
 }
 void IRAM_ATTR detectsMovement3() {
-  //Serial.println("PIR3 change");
+  Serial.println("PIR3 change");
   if (pirStat3 == 0) {
     pirStat3 = 1;
   }
@@ -111,9 +111,13 @@ void setup() {
   WiFi.begin(ssid, pass);
 
   //pinMode(ledPin, OUTPUT);
+//
+pinMode(pirPin1, INPUT_PULLUP);
+pinMode(pirPin2, INPUT_PULLUP);
+pinMode(pirPin3, INPUT_PULLUP);
 
   attachInterrupt(digitalPinToInterrupt(pirPin1), detectsMovement1, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(pirPin2), detectsMovement2, CHANGE);
+ attachInterrupt(digitalPinToInterrupt(pirPin2), detectsMovement2, CHANGE);
   attachInterrupt(digitalPinToInterrupt(pirPin3), detectsMovement3, CHANGE);
 
 
