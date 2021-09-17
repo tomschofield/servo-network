@@ -15,7 +15,7 @@ import controlP5.*;
 import processing.serial.*;
 Serial myPort;                       // The serial port
 PFont font;
-String inString;
+
 boolean useSerial = false;
 boolean useMQTT;
 Knob myKnobA;
@@ -26,13 +26,14 @@ MQTTClient client;
 int x = 0;
 int y = 0;
 int knobValue = 0;
-String pInString = "000"
-  int [] wavePattern = {0, 4, 1, 5, 8, 9, 6, 2, 12, 13, 10, 7, 3, 14, 11, 16, 17, 18, 15, 21, 22, 19, 20, 25, 26, 23, 24, 29, 30, 27, 28, 31};
+String inString = "000";
+String pInString = "000";
+int [] wavePattern = {0, 4, 1, 5, 8, 9, 6, 2, 12, 13, 10, 7, 3, 14, 11, 16, 17, 18, 15, 21, 22, 19, 20, 25, 26, 23, 24, 29, 30, 27, 28, 31};
 void setup() {
   useMQTT = !useSerial;
   println(wavePattern.length);
   client = new MQTTClient(this);
-  client.connect("mqtt://public:public@public.cloud.shiftr.io", "cap");
+  client.connect("mqtt://public:public@public.cloud.shiftr.io", "p55");
   //client.connect("mqtt://192.168.0.60", "p55");
   size(700, 400);
   PFont font = createFont("arial", 20);
@@ -40,15 +41,16 @@ void setup() {
 
   font = loadFont("ACaslonPro-Bold-48.vlw");
   textFont(font, 48);
-
-  // Print a list of the serial ports, for debugging purposes:
-  printArray(Serial.list());
-  //change the 3 below to whatever the port number of you arduino on your local machine
-  String portName = Serial.list()[3];
-  myPort = new Serial(this, portName, 9600);
-  myPort.bufferUntil('\n');
+  if (useSerial) {
+    // Print a list of the serial ports, for debugging purposes:
+    printArray(Serial.list());
+    //change the 3 below to whatever the port number of you arduino on your local machine
 
 
+    String portName = Serial.list()[3];
+    myPort = new Serial(this, portName, 9600);
+    myPort.bufferUntil('\n');
+  }
 
   cp5 = new ControlP5(this);
 
@@ -107,16 +109,108 @@ void draw() {
   textAlign(CENTER);
   text(inString, width-100, 100);
 
+  //if (inString.equals(pInString)==false) {
+  //  if (inString.equals("000")) {
+  //    sendRestingPattern(32);
+  //  } else if (inString.equals("100")) {
+  //  } else if (inString.equals("110")) {
+  //  } else if (inString.equals("101")) {
+  //  } else if (inString.equals("111")) {
+  //  } else if (inString.equals("011")) {
+  //  } else if (inString.equals("001")) {
+  //  } else if (inString.equals("010")) {
+  //  }
+  //  pInString = inString;
+  //}
+
+  //based on activity level
   if (inString.equals(pInString)==false) {
     if (inString.equals("000")) {
       sendRestingPattern(32);
-    } else if (inString.equals("100")) {
+    } else if (inString.equals("100") || inString.equals("010") || inString.equals("001") ) {
+      //low activity
+    } else if (inString.equals("110") || inString.equals("101") || inString.equals("011")) {
+      //medium activity
+    } else if (inString.equals("111")) {
+      //high activity
     }
     pInString = inString;
   }
 }
 void keyReleased() {
 }
+void sendTwitch(int numServos, int numPositions, int numIntervals, int intervalLength) {
+  String intervals = "";
+
+  for (int i=0; i<numPositions; i++) {
+    intervals+= str(intervalLength)+",";
+  }
+
+
+
+  intervals = intervals.substring(0, intervals.length()-1);
+
+  int maxTwitchAngle=5;
+
+
+  int [] angles = new int [numServos];
+  for (int i=0; i<angles.length; i++) {
+    angles[i] = int(random(0, 180));
+  }
+
+  for (int j=0; j<numPositions; j++) {
+    for (int i=0; i<numServos; i++) {
+      String serialisedJSON =  "{\"servoId\":";
+
+      serialisedJSON+=str(wavePattern[i]);
+      serialisedJSON+=",\"arrLength\":";
+      serialisedJSON+=str(numPositions);
+      serialisedJSON+=",\"setPos\":";
+      serialisedJSON+="1";
+      serialisedJSON+=",\"positions\":[";
+      serialisedJSON+= str( angles [i] ) ;//str(knobValue);
+      serialisedJSON+="],\"intervals\":[";
+      serialisedJSON+=intervals;
+      serialisedJSON+="]}";
+
+      println(serialisedJSON);
+      client.publish("/kennedy", serialisedJSON);
+      delay(50);
+    }
+    for (int i=0; i<angles.length; i++) {
+      angles[i] += int(random(-maxTwitchAngle, maxTwitchAngle));
+      if (angles[i]<0) angles[i] += maxTwitchAngle;
+      if (angles[i]>180) angles[i] -= maxTwitchAngle;
+    }
+  }
+}
+void sendRestingPatternRandom(int numServos) {
+  String positions  = "0, 45, 90,135, 180, 135, 90, 45, 180, 170, 160, 45, 0";
+  String intervals = "1000, 2000, 1000, 2000, 500, 1000, 1500, 2000, 2000, 500, 2000, 1500, 1000";
+
+  int numPositions = splitTokens(positions, ",").length;
+
+  for (int i=0; i<numServos; i++) {
+    String serialisedJSON =  "{\"servoId\":";
+
+    serialisedJSON+=str(i);
+    serialisedJSON+=",\"arrLength\":";
+    serialisedJSON+=str(numPositions);
+    serialisedJSON+=",\"setPos\":";
+    serialisedJSON+="1";
+    serialisedJSON+=",\"positions\":[";
+    serialisedJSON+=positions;
+
+    serialisedJSON+="],\"intervals\":[";
+    serialisedJSON+=intervals;
+    serialisedJSON+="]}";
+
+    println(serialisedJSON);
+    client.publish("/kennedy", serialisedJSON);
+    delay(50);
+  }
+}
+
 
 void sendRestingPattern(int numServos) {
   String positions  = "0, 45, 90,135, 180, 135, 90, 45, 180, 170, 160, 45, 0";
@@ -127,7 +221,7 @@ void sendRestingPattern(int numServos) {
   for (int i=0; i<numServos; i++) {
     String serialisedJSON =  "{\"servoId\":";
 
-    serialisedJSON+=str(wavePattern[i]);
+    serialisedJSON+=str(i);
     serialisedJSON+=",\"arrLength\":";
     serialisedJSON+=str(numPositions);
     serialisedJSON+=",\"setPos\":";
@@ -152,7 +246,7 @@ void sendWaveStaggeredEveryOther(int numServos, int numPositions, int intervalLe
   }
   intervals = intervals.substring(0, intervals.length()-1);
 
-  for (int j=0; j<10; j++) {
+  for (int j=0; j<numPositions; j++) {
 
     for (int i=0; i<numServos; i++) {
       String serialisedJSON =  "{\"servoId\":";
@@ -376,21 +470,17 @@ void mouseDragged() {
 void clientConnected() {
   println("client connected");
   //I want to subscribe to these messages
-  //client.subscribe("/mouseX");
+  client.subscribe("/kennedyPIR");
   //client.subscribe("/mouseY");
 }
 
 void messageReceived(String topic, byte[] payload) {
   //println("new message: " + topic + " - " + new String(payload));
   String pl  = new String(payload);
-
-  if (topic.equals("/mouseX")) {
-    x = int(pl);
+  println(pl);
+  if (topic.equals("/kennedyPIR")) {
+    inString=pl;
   }
-  if (topic.equals("/mouseY")) {
-    y = int(pl);
-  }
-  // x = incoming message on topic mouseX
 }
 
 void connectionLost() {
