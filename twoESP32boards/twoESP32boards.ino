@@ -8,8 +8,8 @@
 
 //
 
-const char ssid[] = "TP-";
-const char pass[] = "";
+const char ssid[] = "TP-Link_14DD";
+const char pass[] = "NKconcert99";
 //const char ssid[] = "x";
 //const char pass[] = "x";
 WiFiClient net;
@@ -59,8 +59,8 @@ Adafruit_PWMServoDriver board2 = Adafruit_PWMServoDriver(0x41);
 
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
-int servoPositionsA [] = {0, 45, 90};//, 135, 180, 135, 90, 45}; //, 180, 170, 160, 45, 0};
-int servoIntervalsA [] = {1000, 2000, 1000};//, 2000, 500, 1000, 1500, 2000}; //, 2000, 500, 2000, 1500, 1000};
+int servoPositionsA [] = {0, 45, 90,45};//, 135, 180, 135, 90, 45}; //, 180, 170, 160, 45, 0};
+int servoIntervalsA [] = {1000, 2000, 1000,1000};//, 2000, 500, 1000, 1500, 2000}; //, 2000, 500, 2000, 1500, 1000};
 
 
 
@@ -124,7 +124,7 @@ void connectAndSubscribe() {
 
   Serial.println("\nconnected!");
 
-  client.subscribe("/kennedyLEFTHANDSIDE");
+  client.subscribe("/kennedyRIGHTHANDSIDE");
 
 }
 
@@ -168,7 +168,7 @@ void messageReceived(String &topic, String &payload) {
 
       Serial.print("index : ");
       Serial.print(i);
-      Serial.print("position : ");
+      Serial.print(", position : ");
       Serial.print(servoPositions[i]);
       Serial.print(", interval : ");
       Serial.println(servoIntervals[i]);
@@ -215,7 +215,7 @@ void setup() {
   for (int i = 0; i < NUM_SERVOS; i++) {
 
     //this is where I assign the servo list of positions and intervals
-    servos[i].setArrays(servoPositionsA, servoIntervalsA, 3);
+    servos[i].setArrays(servoPositionsA, servoIntervalsA, 4);
     servoIntervalsA[2] += 1500;
   }
   //  //set the arrays for our first servo
@@ -234,7 +234,7 @@ void loop() {
   if ( millis() % (10 * 1000) ) {
     // check if client is connected
     if (client.connected()) {
-      Serial.println("client connected");
+     // Serial.println("client connected");
 
     } else {
       Serial.println("client disconnected");
@@ -247,6 +247,7 @@ void loop() {
 
     //servos[i].updateByArrayPos();
     if (servos[i].getUpdate()) {
+     //if(i==0) Serial.println( servos[i].pos);
       servos[i].updateByInterpolatedArrayPos();
 
       //      Serial.print(i);

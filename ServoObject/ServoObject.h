@@ -23,11 +23,11 @@ public:
   int getLEDPulseLength();
   void setUpdate(bool _update);
   boolean getUpdate();
-  
+   float pos;
 private:
   int speed;
   int inc;
-  float pos;
+ 
   int numSubdivisions;
   int subDivisionIndex;
   // int* posList ;

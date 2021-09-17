@@ -126,7 +126,7 @@ void draw() {
   //based on activity level
   if (inString.equals(pInString)==false) {
     if (inString.equals("000")) {
-      sendRestingPattern(32);
+      // sendRestingPattern(32);
     } else if (inString.equals("100") || inString.equals("010") || inString.equals("001") ) {
       //low activity
     } else if (inString.equals("110") || inString.equals("101") || inString.equals("011")) {
@@ -138,8 +138,26 @@ void draw() {
   }
 }
 void keyReleased() {
+  if (key=='a') {
+    sendWaveBackAndForth(32, 10, 50, 18);
+  } else if (key=='b') {
+    sendRestingPattern(32);
+  } else if (key=='c') {
+    //    sendRestingPatternWindow(15);
+    //sendWaveStaggeredEveryOtherWindow(15, 10, 100, 18);
+    sendAllToPosition(15, 90);
+   // delay(1000);
+    //String [] addresses = {"/kennedyLEFTHANDSIDE", "/kennedyWINDOW"};
+
+    //sendRestingPatternAnywhere(15, addresses, 0 );
+  } else if (key=='d') {
+    String [] addresses = {"/kennedyWINDOW"};
+    sendRestingPatternAnywhere(15, addresses, 100 );
+  }
+
+  //sendTwitch(32, 10, 50, 8,20);
 }
-void sendTwitch(int numServos, int numPositions, int numIntervals, int intervalLength) {
+void sendTwitch(int numServos, int numPositions, int numIntervals, int intervalLength, int maxTwitchAngle) {
   String intervals = "";
 
   for (int i=0; i<numPositions; i++) {
@@ -150,7 +168,6 @@ void sendTwitch(int numServos, int numPositions, int numIntervals, int intervalL
 
   intervals = intervals.substring(0, intervals.length()-1);
 
-  int maxTwitchAngle=5;
 
 
   int [] angles = new int [numServos];
@@ -174,7 +191,9 @@ void sendTwitch(int numServos, int numPositions, int numIntervals, int intervalL
       serialisedJSON+="]}";
 
       println(serialisedJSON);
-      client.publish("/kennedy", serialisedJSON);
+      client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+      client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+
       delay(50);
     }
     for (int i=0; i<angles.length; i++) {
@@ -197,7 +216,7 @@ void sendRestingPatternRandom(int numServos) {
     serialisedJSON+=",\"arrLength\":";
     serialisedJSON+=str(numPositions);
     serialisedJSON+=",\"setPos\":";
-    serialisedJSON+="1";
+    serialisedJSON+="0";
     serialisedJSON+=",\"positions\":[";
     serialisedJSON+=positions;
 
@@ -205,16 +224,18 @@ void sendRestingPatternRandom(int numServos) {
     serialisedJSON+=intervals;
     serialisedJSON+="]}";
 
-    println(serialisedJSON);
-    client.publish("/kennedy", serialisedJSON);
+    //  println(serialisedJSON);
+
+    client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+    client.publish("/kennedyRIGHHANDSIDE", serialisedJSON);
+
     delay(50);
   }
 }
 
-
-void sendRestingPattern(int numServos) {
-  String positions  = "0, 45, 90,135, 180, 135, 90, 45, 180, 170, 160, 45, 0";
-  String intervals = "1000, 2000, 1000, 2000, 500, 1000, 1500, 2000, 2000, 500, 2000, 1500, 1000";
+void sendRestingPatternAnywhere(int numServos, String [] topics, int offSet) {
+  String positions  =  "0,90,0";
+  String intervals =   "1000,2000,1000";
 
   int numPositions = splitTokens(positions, ",").length;
 
@@ -225,7 +246,7 @@ void sendRestingPattern(int numServos) {
     serialisedJSON+=",\"arrLength\":";
     serialisedJSON+=str(numPositions);
     serialisedJSON+=",\"setPos\":";
-    serialisedJSON+="1";
+    serialisedJSON+="0";
     serialisedJSON+=",\"positions\":[";
     serialisedJSON+=positions;
 
@@ -234,10 +255,84 @@ void sendRestingPattern(int numServos) {
     serialisedJSON+="]}";
 
     println(serialisedJSON);
-    client.publish("/kennedy", serialisedJSON);
+    for (int j=0; j<topics.length; j++) {
+      client.publish(topics[j], serialisedJSON);
+    }
+
+    //introduce delay off set to last interval
+    String [] intervalsExp = splitTokens(intervals, ",");
+    int firstInterval =int(intervalsExp[0]);
+    firstInterval+=offSet;
+    intervals = str(firstInterval)+",";
+    for (int j=1; j<intervalsExp.length; j++) {
+      intervals+=intervalsExp[j];
+      intervals+=",";
+    }
+    intervals = intervals.substring(0, intervals.length()-1);
     delay(50);
   }
 }
+void sendRestingPattern(int numServos) {
+  String positions  =  "0,45,90,135,180,135,90,45,180,0";
+  String intervals =   "1000,500,1000,500,500,1000,1500,2000,2000,500";
+
+  int numPositions = splitTokens(positions, ",").length;
+
+  for (int i=0; i<numServos; i++) {
+    String serialisedJSON =  "{\"servoId\":";
+
+    serialisedJSON+=str(i);
+    serialisedJSON+=",\"arrLength\":";
+    serialisedJSON+=str(numPositions);
+    serialisedJSON+=",\"setPos\":";
+    serialisedJSON+="0";
+    serialisedJSON+=",\"positions\":[";
+    serialisedJSON+=positions;
+
+    serialisedJSON+="],\"intervals\":[";
+    serialisedJSON+=intervals;
+    serialisedJSON+="]}";
+
+    println(serialisedJSON);
+    client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+    client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+    delay(50);
+  }
+}
+
+void sendWaveStaggeredEveryOtherWindow(int numServos, int numPositions, int intervalLength, int angle) {
+  String intervals = "";
+  for (int i=0; i<numPositions; i++) {
+    intervals+= str(intervalLength)+",";
+  }
+  intervals = intervals.substring(0, intervals.length()-1);
+
+  for (int j=0; j<numPositions; j++) {
+
+    for (int i=0; i<numServos; i++) {
+      String serialisedJSON =  "{\"servoId\":";
+
+      serialisedJSON+=str(wavePattern[i]);
+      serialisedJSON+=",\"arrLength\":";
+      serialisedJSON+=str(numPositions);
+      serialisedJSON+=",\"setPos\":";
+      serialisedJSON+="1";
+      serialisedJSON+=",\"positions\":[";
+      serialisedJSON+= str( angle * j ); //str(knobValue);
+
+      serialisedJSON+="],\"intervals\":[";
+      serialisedJSON+=intervals;
+      serialisedJSON+="]}";
+
+      println(serialisedJSON);
+      client.publish("/kennedyWINDOW", serialisedJSON);
+
+      delay(50);
+    }
+    delay(500);
+  }
+}
+
 
 void sendWaveStaggeredEveryOther(int numServos, int numPositions, int intervalLength, int angle) {
   String intervals = "";
@@ -258,9 +353,9 @@ void sendWaveStaggeredEveryOther(int numServos, int numPositions, int intervalLe
       serialisedJSON+="1";
       serialisedJSON+=",\"positions\":[";
       if (i%2==0) {
-        serialisedJSON+= str( angle * j ) ;//str(knobValue);
+        serialisedJSON+= str( angle * j ); //str(knobValue);
       } else {
-        serialisedJSON+= str( angle * (10-j) ) ;//str(knobValue);
+        serialisedJSON+= str( angle * (10-j) ); //str(knobValue);
       }
 
       serialisedJSON+="],\"intervals\":[";
@@ -268,7 +363,9 @@ void sendWaveStaggeredEveryOther(int numServos, int numPositions, int intervalLe
       serialisedJSON+="]}";
 
       println(serialisedJSON);
-      client.publish("/kennedy", serialisedJSON);
+      client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+      client.publish("/kennedyRIGHHANDSIDE", serialisedJSON);
+
       delay(50);
     }
     delay(500);
@@ -294,14 +391,16 @@ void sendWaveBackAndForth(int numServos, int numPositions, int intervalLength, i
       serialisedJSON+=",\"setPos\":";
       serialisedJSON+="1";
       serialisedJSON+=",\"positions\":[";
-      serialisedJSON+= str( angle * j ) ;//str(knobValue);
+      serialisedJSON+= str( angle * j ); //str(knobValue);
       serialisedJSON+="],\"intervals\":[";
       serialisedJSON+=intervals;
       serialisedJSON+="]}";
 
-      println(serialisedJSON);
-      client.publish("/kennedy", serialisedJSON);
-      delay(50);
+      //println(serialisedJSON);
+      client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+      client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+
+      delay(10);
     }
     delay(500);
   }
@@ -316,13 +415,15 @@ void sendWaveBackAndForth(int numServos, int numPositions, int intervalLength, i
       serialisedJSON+=",\"setPos\":";
       serialisedJSON+="1";
       serialisedJSON+=",\"positions\":[";
-      serialisedJSON+= str( angle * j ) ;//str(knobValue);
+      serialisedJSON+= str( angle * j ); //str(knobValue);
       serialisedJSON+="],\"intervals\":[";
       serialisedJSON+=intervals;
       serialisedJSON+="]}";
 
-      println(serialisedJSON);
-      client.publish("/kennedy", serialisedJSON);
+      //println(serialisedJSON);
+      client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+      client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+
       delay(50);
     }
 
@@ -358,7 +459,36 @@ void knob(int theValue) {
   serialisedJSON+="]}";
 
   println(serialisedJSON);
-  client.publish("/kennedy", serialisedJSON);
+  client.publish("/kennedyWINDOW", serialisedJSON);
+  client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+  client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+}
+void sendAllToPosition(int numServos, int theValue) {
+  knobValue = theValue;
+  String servoId = str(currentServo);
+  //first check our lists are the same length
+
+  String positions = cp5.get(Textfield.class, "positions").getText();
+  String intervals = cp5.get(Textfield.class, "intervals").getText();
+  int numPositions = splitTokens(positions, ",").length;
+  int numIntervals = splitTokens(intervals, ",").length;
+  for (int i=0; i<numServos; i++) {
+    String serialisedJSON =  "{\"servoId\":";
+
+    serialisedJSON+=str(i);
+    serialisedJSON+=",\"arrLength\":";
+    serialisedJSON+=str(1);
+    serialisedJSON+=",\"setPos\":";
+    serialisedJSON+="1";
+    serialisedJSON+=",\"positions\":[";
+    serialisedJSON+=str(theValue);
+    serialisedJSON+="],\"intervals\":[";
+    serialisedJSON+=intervals;
+    serialisedJSON+="]}";
+
+    println(serialisedJSON);
+    client.publish("/kennedyWINDOW", serialisedJSON);
+  }
 }
 
 public void send() {
@@ -376,7 +506,7 @@ public void send() {
 
     serialisedJSON+=servoId;
     serialisedJSON+=",\"arrLength\":";
-    serialisedJSON+=str(numPositions-1);
+    serialisedJSON+=str(numPositions);
     serialisedJSON+=",\"setPos\":";
     serialisedJSON+="0";
     serialisedJSON+=",\"positions\":[";
@@ -386,7 +516,9 @@ public void send() {
     serialisedJSON+="]}";
 
     println(serialisedJSON);
-    client.publish("/kennedy", serialisedJSON);
+    client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+    client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+    client.publish("/kennedyWINDOW", serialisedJSON);
   } else if (numPositions==1) {
 
     String serialisedJSON =  "{\"servoId\":";
@@ -403,7 +535,9 @@ public void send() {
     serialisedJSON+="]}";
 
     println(serialisedJSON);
-    client.publish("/kennedy", serialisedJSON);
+    client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+    client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+    client.publish("/kennedyWINDOW", serialisedJSON);
   } else {
     println("lists are different lengths, try again");
   }
@@ -455,7 +589,7 @@ void keyPressed() {
   //  obj.setJSONArray("positions", values);
   //  obj.setJSONArray("intervals", values);
   //  println(obj.toString());
-  //  client.publish("/kennedy", "{\"servoId\":3,\"arrLength\":5,\"positions\":[0,10,20,30,45],\"intervals\":[900,6000,900,6000,1000]}");
+  //  client.publish("/kennedyRIGHTHANDSIDE", "{\"servoId\":3,\"arrLength\":5,\"positions\":[0,10,20,30,45],\"intervals\":[900,6000,900,6000,1000]}");
 }
 
 //mouseDragged happens whenever I click and drag the mouse

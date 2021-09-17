@@ -40,9 +40,10 @@ void ServoObject::setArrays(int *_posList, int *_intervalList, int _numPositions
         intervalList[i] = _intervalList[i];
         posList[i] = _posList[i];
     }
-
+    pos = posList[0];
     index = 0;
-    inc = intervalList[index];
+    subDivisionIndex = 0;
+    inc = 0;//intervalList[index];
 
     startTime = millis();
 }
@@ -125,10 +126,12 @@ void ServoObject::updateByInterpolatedArrayPos()
 
         // pos = posList[index];
         pos += dividedPosSize;
+
+        // if(numPositions==3){
         // Serial.print("current pos: ");
 
         // Serial.print(posList[index]);
-        // Serial.print(", next pos: ");
+        //  Serial.print(", next pos: ");
         // if (index < numPositions - 1)
         // {
         //     Serial.print(posList[index + 1]);
@@ -147,6 +150,7 @@ void ServoObject::updateByInterpolatedArrayPos()
 
         // Serial.print(", pos: ");
         // Serial.println(pos);
+        // }
 
         //inc = intervalList[index];
         subDivisionIndex++;
