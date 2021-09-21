@@ -1,7 +1,7 @@
 int ledPin = 13;                // LED
-int pirPin1 = 2;                 // PIR Out pin
-int pirPin2 = 3;                 // PIR Out pin
-int pirPin3 = 4;                 // PIR Out pin
+int pirPin1 = 25;                 // PIR Out pin
+int pirPin2 = 26;                 // PIR Out pin
+int pirPin3 = 27;                 // PIR Out pin
 
 
 int pirStat = 0;                   // PIR status
@@ -15,7 +15,7 @@ void setup() {
   pinMode(pirPin3, INPUT);
 
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 void loop() {
   String PIRstatuses = "";

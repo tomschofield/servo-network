@@ -21,17 +21,13 @@ MQTTClient client;
   This is an example for our Adafruit 16-channel PWM & Servo driver
   Servo test - this will drive 8 servos, one after the other on the
   first 8 pins of the PCA9685
-
   Pick one up today in the adafruit shop!
   ------> http://www.adafruit.com/products/815
-
   These drivers use I2C to communicate, 2 pins are required to
   interface.
-
   Adafruit invests time and resources providing this open source code,
   please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
-
   Written by Limor Fried/Ladyada for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
@@ -59,8 +55,8 @@ Adafruit_PWMServoDriver board2 = Adafruit_PWMServoDriver(0x41);
 
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
-int servoPositionsA [] = {0, 45, 90,45};//, 135, 180, 135, 90, 45}; //, 180, 170, 160, 45, 0};
-int servoIntervalsA [] = {1000, 2000, 1000,1000};//, 2000, 500, 1000, 1500, 2000}; //, 2000, 500, 2000, 1500, 1000};
+int servoPositionsA [] = {0, 45, 90};//, 135, 180, 135, 90, 45}; //, 180, 170, 160, 45, 0};
+int servoIntervalsA [] = {1000, 2000, 1000};//, 2000, 500, 1000, 1500, 2000}; //, 2000, 500, 2000, 1500, 1000};
 
 
 
@@ -130,7 +126,7 @@ void connectAndSubscribe() {
 
 //this is also for the networking
 void messageReceived(String &topic, String &payload) {
-  Serial.println("incoming: " + topic + " - " + payload);
+ // Serial.println("incoming: " + topic + " - " + payload);
 
 
 
@@ -147,11 +143,11 @@ void messageReceived(String &topic, String &payload) {
   int arrLength = doc["arrLength"];
   int  setPos = doc["setPos"];
   if (setPos == 0) {
-    Serial.print("servoId : ");
-    Serial.println(servoId);
+  //  Serial.print("servoId : ");
+    ////.Serial.println(servoId);
 
-    Serial.print("arrLength : ");
-    Serial.println(arrLength);
+    //Serial.print("arrLength : ");
+   // Serial.println(arrLength);
 
     int servoPositions [20] ;
     int servoIntervals [20] ;
@@ -166,12 +162,12 @@ void messageReceived(String &topic, String &payload) {
       servoPositions[i] = doc["positions"][i];
       servoIntervals[i] = doc["intervals"][i];
 
-      Serial.print("index : ");
-      Serial.print(i);
-      Serial.print(", position : ");
-      Serial.print(servoPositions[i]);
-      Serial.print(", interval : ");
-      Serial.println(servoIntervals[i]);
+//      Serial.print("index : ");
+//      Serial.print(i);
+//      Serial.print("position : ");
+//      Serial.print(servoPositions[i]);
+//      Serial.print(", interval : ");
+//      Serial.println(servoIntervals[i]);
     }
 
 
@@ -185,7 +181,7 @@ void messageReceived(String &topic, String &payload) {
 }
 void setup() {
   Serial.begin(115200);
-  Serial.println("9 channel Servo test!");
+ // Serial.println("9 channel Servo test!");
   //WiFi.enableSTA(true);//NK EDIT
   WiFi.begin(ssid, pass);
 
@@ -215,7 +211,7 @@ void setup() {
   for (int i = 0; i < NUM_SERVOS; i++) {
 
     //this is where I assign the servo list of positions and intervals
-    servos[i].setArrays(servoPositionsA, servoIntervalsA, 4);
+    servos[i].setArrays(servoPositionsA, servoIntervalsA, 3);
     servoIntervalsA[2] += 1500;
   }
   //  //set the arrays for our first servo
@@ -234,7 +230,7 @@ void loop() {
   if ( millis() % (10 * 1000) ) {
     // check if client is connected
     if (client.connected()) {
-     // Serial.println("client connected");
+      //Serial.println("client connected");
 
     } else {
       Serial.println("client disconnected");
@@ -247,7 +243,6 @@ void loop() {
 
     //servos[i].updateByArrayPos();
     if (servos[i].getUpdate()) {
-     //if(i==0) Serial.println( servos[i].pos);
       servos[i].updateByInterpolatedArrayPos();
 
       //      Serial.print(i);
@@ -273,5 +268,5 @@ void loop() {
   //  LEDpwm.setPWM(5, 0, servoPWM);
 
 
-  delay(10);
+  //delay(10);
 }

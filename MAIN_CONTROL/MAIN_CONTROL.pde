@@ -125,34 +125,50 @@ void draw() {
 
   //based on activity level
   if (inString.equals(pInString)==false) {
-    if (inString.equals("000")) {
-      // sendRestingPattern(32);
-    } else if (inString.equals("100") || inString.equals("010") || inString.equals("001") ) {
-      //low activity
-    } else if (inString.equals("110") || inString.equals("101") || inString.equals("011")) {
-      //medium activity
-    } else if (inString.equals("111")) {
-      //high activity
+    //window active
+    if(inString.equals("010")){
+      println("window active");
+      sendCircularResting();
     }
+   //window inactive
+    else if(inString.equals("000")){
+       println("window in active");
+       sendCircularQuiver();
+    }
+    //if (inString.equals("000")) {
+    //  // sendRestingPattern(32);
+    //} else if (inString.equals("100") || inString.equals("010") || inString.equals("001") ) {
+    //  //low activity
+    //} else if (inString.equals("110") || inString.equals("101") || inString.equals("011")) {
+    //  //medium activity
+    //} else if (inString.equals("111")) {
+    //  //high activity
+    //}
     pInString = inString;
   }
 }
 void keyReleased() {
   if (key=='a') {
-    sendWaveBackAndForth(32, 10, 50, 18);
+    //sendWaveBackAndForth(32, 10, 50, 18);
+    sendCircularResting() ;
   } else if (key=='b') {
-    sendRestingPattern(32);
+    sendCircularQuiver();
   } else if (key=='c') {
     //    sendRestingPatternWindow(15);
     //sendWaveStaggeredEveryOtherWindow(15, 10, 100, 18);
     sendAllToPosition(15, 90);
-   // delay(1000);
+    // delay(1000);
     //String [] addresses = {"/kennedyLEFTHANDSIDE", "/kennedyWINDOW"};
-
+    String [] addresses = {"/kennedyWINDOW", "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
+    //sendRestingPatternAnywhere(32, addresses, 100 );
+    sendRestingPatternAnywhereColumns(32, addresses, 100);
+    // sendRestingPatternAnywhereRows(32, addresses, 100);
     //sendRestingPatternAnywhere(15, addresses, 0 );
   } else if (key=='d') {
-    String [] addresses = {"/kennedyWINDOW"};
-    sendRestingPatternAnywhere(15, addresses, 100 );
+    String [] addresses = {"/kennedyWINDOW", "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
+    //sendRestingPatternAnywhere(32, addresses, 100 );
+    // sendRestingPatternAnywhereColumns(32, addresses, 100);
+    sendRestingPatternAnywhereRows(32, addresses, 100);
   }
 
   //sendTwitch(32, 10, 50, 8,20);
@@ -260,17 +276,172 @@ void sendRestingPatternAnywhere(int numServos, String [] topics, int offSet) {
     }
 
     //introduce delay off set to last interval
-    String [] intervalsExp = splitTokens(intervals, ",");
-    int firstInterval =int(intervalsExp[0]);
-    firstInterval+=offSet;
-    intervals = str(firstInterval)+",";
-    for (int j=1; j<intervalsExp.length; j++) {
-      intervals+=intervalsExp[j];
-      intervals+=",";
-    }
-    intervals = intervals.substring(0, intervals.length()-1);
-    delay(50);
+    //String [] intervalsExp = splitTokens(intervals, ",");
+    //int firstInterval =int(intervalsExp[0]);
+    //firstInterval+=offSet;
+    //intervals = str(firstInterval)+",";
+    //for (int j=1; j<intervalsExp.length; j++) {
+    //  intervals+=intervalsExp[j];
+    //  intervals+=",";
+    //}
+    //intervals = intervals.substring(0, intervals.length()-1);
+    delay(10);
   }
+}
+
+void sendRestingPatternAnywhereColumns(int numServos, String [] topics, int offSet) {
+  String positions  =  "0,180,0,90,0";
+  String intervals =   "4000,500,500,500,500";
+
+  int numPositions = splitTokens(positions, ",").length;
+  int columnCount = 0;
+  int columnLength = 4;
+  int delayLength = 10;
+  int multiPlier  = 100;
+  for (int i=0; i<numServos; i+=4) {
+    // while(columnCount <columnLength){
+    formatJSON( numPositions, intervals, positions, "/kennedyLEFTHANDSIDE", i);
+    delay(delayLength);
+    formatJSON( numPositions, intervals, positions, "/kennedyLEFTHANDSIDE", i+1);
+    delay(delayLength);
+    formatJSON( numPositions, intervals, positions, "/kennedyLEFTHANDSIDE", i+2);
+    delay(delayLength);
+    formatJSON( numPositions, intervals, positions, "/kennedyLEFTHANDSIDE", i+3);
+    delay(delayLength*multiPlier);
+    //
+  }
+  for (int i=0; i<numServos; i+=4) {
+    // while(columnCount <columnLength){
+    formatJSON( numPositions, intervals, positions, "/kennedyRIGHTHANDSIDE", i);
+    delay(delayLength);
+    formatJSON( numPositions, intervals, positions, "/kennedyRIGHTHANDSIDE", i+1);
+    delay(delayLength);
+    formatJSON( numPositions, intervals, positions, "/kennedyRIGHTHANDSIDE", i+2);
+    delay(delayLength);
+    formatJSON( numPositions, intervals, positions, "/kennedyRIGHTHANDSIDE", i+3);
+    delay(delayLength*multiPlier);
+    //
+  }
+}
+void sendRestingPatternAnywhereRows(int numServos, String [] topics, int offSet) {
+  String positions  =  "0,180,0,90,0";
+  String intervals =   "4000,500,500,500,500";
+
+  int numPositions = splitTokens(positions, ",").length;
+  int columnCount = 0;
+  int columnLength = 4;
+  int delayLength = 30;
+  int multiPlier  = 20;
+  int rowLength =16;
+  //for the complete length of the 2 arrays go up in 4s
+  //for each row
+  for (int i=0; i<columnLength; i++) {
+    //go up in 4s
+    println("column ", i);
+    for (int j=0; j<rowLength/2; j++) {
+      //across the first row on left
+      int servoIdOffset = i;//(i*(rowLength/2));
+      int servoId = servoIdOffset + j*4;
+      print(servoId, " left side ");
+      println();
+
+      formatJSON( numPositions, intervals, positions, "/kennedyLEFTHANDSIDE", servoId);
+      delay(delayLength);
+    }
+    for (int j=0; j<rowLength/2; j++) {
+      //across the first row on left
+      int servoIdOffset = i;//(i*(rowLength/2));
+      int servoId = servoIdOffset + j*4;
+      print(servoId, " right side ");
+      println();
+
+      formatJSON( numPositions, intervals, positions, "/kennedyRIGHTHANDSIDE", servoId);
+      delay(delayLength);
+    }
+    delay(delayLength*multiPlier);
+  }
+
+
+
+  //
+}
+
+void sendCircularQuiver() {
+int numServos =15;
+  int delayLength = 10;
+  int multiPlier  = 100;
+  for (int i=0; i<numServos; i++) {
+    String positions  =  "90,90,90";
+    String intervals =   "4000,4000,500";
+    int numPositions = splitTokens(positions, ",").length;
+    // while(columnCount <columnLength){
+    formatJSON( numPositions, intervals, positions, "/kennedyWINDOW", i);
+    delay(delayLength);
+
+    //
+  }
+  delay(2000);
+  int maxAngle = 30;
+  int minInterval = 20;
+  int maxInterval  = 100;
+  for (int i=0; i<numServos; i++) {
+    int lowAngle=90;
+    int highAngle=90;
+    if(i%2==0){
+     lowAngle =int( 90 - random(maxAngle ));
+     highAngle =int( 90 + random(maxAngle ));
+    }
+    else{
+       lowAngle =int( 90 + random(maxAngle ));
+     highAngle =int( 90 - random(maxAngle ));
+    }
+    int interval =int(random(minInterval,maxInterval ));
+    
+    
+    String positions  =  str(lowAngle)+",90,"+str(highAngle);
+    String intervals =   str(interval)+","+str(interval) +","+str(interval);
+    int numPositions = splitTokens(positions, ",").length;
+    // while(columnCount <columnLength){
+    formatJSON( numPositions, intervals, positions, "/kennedyWINDOW", i);
+    delay(delayLength);
+
+    //
+  }
+}
+void sendCircularResting() {
+int numServos =15;
+  int delayLength = 10;
+  int multiPlier  = 100;
+  for (int i=0; i<numServos; i++) {
+    String positions  =  "0,90,0";
+    String intervals =   "4000,500,500";
+    int numPositions = splitTokens(positions, ",").length;
+    // while(columnCount <columnLength){
+    formatJSON( numPositions, intervals, positions, "/kennedyWINDOW", i);
+    delay(delayLength);
+
+    //
+  }
+  
+}
+void formatJSON(int numPositions, String intervals, String positions, String topic, int servoId) {
+
+  String serialisedJSON =  "{\"servoId\":";
+
+  serialisedJSON+=str(servoId);
+  serialisedJSON+=",\"arrLength\":";
+  serialisedJSON+=str(numPositions);
+  serialisedJSON+=",\"setPos\":";
+  serialisedJSON+="0";
+  serialisedJSON+=",\"positions\":[";
+  serialisedJSON+=positions;
+
+  serialisedJSON+="],\"intervals\":[";
+  serialisedJSON+=intervals;
+  serialisedJSON+="]}";
+
+  //println(serialisedJSON);
+  client.publish(topic, serialisedJSON);
 }
 void sendRestingPattern(int numServos) {
   String positions  =  "0,45,90,135,180,135,90,45,180,0";
