@@ -131,19 +131,22 @@ void draw() {
       println("sending trigger pattern", state);
       //pInString = inString;
       String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-      
-      int chooser = int(random(2));
-      if(chooser==0){
-      sendRestingPatternAnywhereRows(32, addresses, 100);
-      }else{
-        sendRestingPatternAnywhereColumns(32, addresses, 100);
-      }
+      String positions  =  "180,90,180,0,180";//,180,0,180,0,45,90,45,90";
+      String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
+      //sendCircularResting(positions, intervals) ;
+      sendCircularComesTogether();
+      //int chooser = int(random(2));
+      //if(chooser==0){
+      //sendRestingPatternAnywhereRows(32, addresses, 100);
+      //}else{
+      //  sendRestingPatternAnywhereColumns(32, addresses, 100);
+      //}
       startTime=millis();
     }
   }
 
 
-  long timeOut = 10000;
+  long timeOut = 5000;
 
 
   if (millis()-startTime> timeOut ) {
@@ -153,9 +156,12 @@ void draw() {
 
       state=0;
       println("sending random", state);
-      String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
+      //String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
+      //String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
+      //sendCircularQuiver();
+       String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
       String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-      sendWallRestingRandom();
+      sendCircularResting(positions, intervals) ;
     }
   }
 
@@ -225,50 +231,7 @@ void draw() {
   //  windowResting = true;
   //}
 }
-void twoStateMachine() {
-  if (state == 0 ) {
 
-    if (inString.equals("001")) {
-      state=1;
-      println("sending trigger pattern", state);
-      //pInString = inString;
-      String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-      sendRestingPatternAnywhereRows(32, addresses, 100);
-      startTime=millis();
-    }
-  }
-
-
-  long timeOut = 10000;
-
-
-  if (millis()-startTime> timeOut ) {
-    println("timeout", state);
-
-    if (state==1) {
-      //now lets decide if we want to
-      if (inString.equals("001")) {
-        state=2;
-        println("sending pattern 2", state);
-        String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-        sendRestingPatternAnywhereColumns(32, addresses, 100);
-        startTime=millis();
-      } else if (inString.equals("000")) {
-        state=0;
-        println("sending random", state);
-        String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
-        String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-        sendWallRestingRandom();
-      }
-    } else if (state==2) {
-      state=0;
-      println("sending random", state);
-      String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
-      String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-      sendWallRestingRandom();
-    }
-  }
-}
 void keyReleased() {
   if (key=='a') {
     //sendWaveBackAndForth(32, 10, 50, 18);
@@ -544,6 +507,28 @@ void sendCircularResting(String positions, String intervals) {
     int numPositions = splitTokens(positions, ",").length;
     // while(columnCount <columnLength){
     formatJSON( numPositions, intervals, positions, "/kennedyWINDOW", i);
+    delay(delayLength);
+
+    //
+  }
+}
+void sendCircularComesTogether() {
+  String  positions ="45,135,45,135";
+  String  positions1 ="135,45,135,45";
+  String  positions2 = "80,90,80,90";
+  String intervals  ="500,500,1000,1000";
+  int numServos =15;
+  int delayLength = 10;
+  int multiPlier  = 100;
+  for (int i=0; i<numServos; i+=3) {
+
+    int numPositions = splitTokens(positions, ",").length;
+    // while(columnCount <columnLength){
+      
+      
+    formatJSON( numPositions, intervals, positions, "/kennedyWINDOW", i);
+    formatJSON( numPositions, intervals, positions2, "/kennedyWINDOW", i+1);
+    formatJSON( numPositions, intervals, positions1, "/kennedyWINDOW", i+2);
     delay(delayLength);
 
     //
@@ -936,7 +921,7 @@ void mouseDragged() {
 void clientConnected() {
   println("client connected");
   //I want to subscribe to these messages
-  client.subscribe("/kennedyPIR");
+  client.subscribe("/kennedyPIRWINDOW");
   //client.subscribe("/mouseY");
 }
 
@@ -944,7 +929,7 @@ void messageReceived(String topic, byte[] payload) {
   //println("new message: " + topic + " - " + new String(payload));
   String pl  = new String(payload);
   println(pl);
-  if (topic.equals("/kennedyPIR")) {
+  if (topic.equals("/kennedyPIRWINDOW")) {
     inString=pl;
   }
 }

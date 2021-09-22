@@ -67,7 +67,7 @@ void setup() {
   client.onMessage(messageReceived);
   connectAndSubscribe();
 
-  client.publish("/kennedyPIR", "PIR ONLINE");
+  client.publish("/kennedyPIRWINDOW", "PIR ONLINE");
 }
 void loop() {
   client.loop();
@@ -94,31 +94,31 @@ void loop() {
     etc
 
   */
-  pirStat = digitalRead(pirPin1);
-
-  if (pirStat == HIGH) {            // if motion detected
-    digitalWrite(ledPin, HIGH);  // turn LED ON
-    // Serial.write("1");
-    PIRstatuses += "1";
-  }
-  else {
-    // Serial.write("0");
-    PIRstatuses += "0";
-    digitalWrite(ledPin, LOW); // turn LED OFF if we have no motion
-  }
-
-  pirStat = digitalRead(pirPin2);
-
-  if (pirStat == HIGH) {            // if motion detected
-
-    PIRstatuses += "1";
-  }
-  else {
-    // Serial.write("0");
-    PIRstatuses += "0";
-
-  }
-
+  //  pirStat = digitalRead(pirPin1);
+  //
+  //  if (pirStat == HIGH) {            // if motion detected
+  //    digitalWrite(ledPin, HIGH);  // turn LED ON
+  //    // Serial.write("1");
+  //    PIRstatuses += "1";
+  //  }
+  //  else {
+  //    // Serial.write("0");
+  //    PIRstatuses += "0";
+  //    digitalWrite(ledPin, LOW); // turn LED OFF if we have no motion
+  //  }
+  //
+  //  pirStat = digitalRead(pirPin2);
+  //
+  //  if (pirStat == HIGH) {            // if motion detected
+  //
+  //    PIRstatuses += "1";
+  //  }
+  //  else {
+  //    // Serial.write("0");
+  //    PIRstatuses += "0";
+  //
+  //  }
+  PIRstatuses += "00";
   pirStat = digitalRead(pirPin3);
 
   if (pirStat == HIGH) {            // if motion detected
@@ -131,9 +131,10 @@ void loop() {
 
   }
 
-  Serial.println(PIRstatuses);
-  if (pPIRstatuses!=PIRstatuses) {
-    client.publish("/kennedyPIR", PIRstatuses);
+
+  if (pPIRstatuses != PIRstatuses) {
+    Serial.println(PIRstatuses);
+    client.publish("/kennedyPIRWINDOW", PIRstatuses);
     pPIRstatuses = PIRstatuses;
   }
 

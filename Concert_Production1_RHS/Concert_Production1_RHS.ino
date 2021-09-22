@@ -120,7 +120,7 @@ void connectAndSubscribe() {
 
   Serial.println("\nconnected!");
 
-  client.subscribe("/kennedyRIGHTHANDSIDE");
+  client.subscribe("/kennedyWINDOW");
 
 }
 
