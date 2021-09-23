@@ -136,15 +136,18 @@ void draw() {
         //pInString = inString;
         String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
 
-        int chooser = int(random(4));
+        int chooser = int(random(5));
         if (chooser==0) {
           sendRestingPatternAnywhereRows(32, addresses, 100);
         } else if (chooser==1) {
           sendRestingPatternAnywhereColumns(32, addresses, 100);
         } else if (chooser==2) {
           sendEveryOtherToAlternating(32);
-        }else if (chooser==3) {
+        } else if (chooser==3) {
           sendAllRoundTheWorld();
+        } else if (chooser==4) {
+          int [] behaviourIndices = {0, 4};
+          sendNBehaviours(behaviourIndices);
         }
 
 
