@@ -150,12 +150,12 @@ void draw() {
 
 
   if (millis()-startTime> timeOut ) {
-    println("timeout", state);
+  //  println("timeout", state);
 
     if (state==1) {
 
       state=0;
-      println("sending random", state);
+    //  println("sending random", state);
       //String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
       //String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
       //sendCircularQuiver();
@@ -572,21 +572,21 @@ void sendWallRestingRandom() {
 }
 void formatJSON(int numPositions, String intervals, String positions, String topic, int servoId) {
 
-  String serialisedJSON =  "{\"servoId\":";
+  String serialisedJSON =  "{\"i\":";
 
   serialisedJSON+=str(servoId);
-  serialisedJSON+=",\"arrLength\":";
+  serialisedJSON+=",\"a\":";
   serialisedJSON+=str(numPositions);
-  serialisedJSON+=",\"setPos\":";
+  serialisedJSON+=",\"s\":";
   serialisedJSON+="0";
-  serialisedJSON+=",\"positions\":[";
+  serialisedJSON+=",\"ps\":[";
   serialisedJSON+=positions;
 
-  serialisedJSON+="],\"intervals\":[";
+  serialisedJSON+="],\"is\":[";
   serialisedJSON+=intervals;
   serialisedJSON+="]}";
 
-  // println(serialisedJSON);
+ // println(serialisedJSON);
   client.publish(topic, serialisedJSON);
 }
 void sendRestingPattern(int numServos) {

@@ -30,11 +30,11 @@ String inString = "000";
 String pInString = "000";
 boolean windowActive = false;
 boolean windowResting = false;
-String [] behaviourPositions = {"0,180,0,180,0","180,0,180,0,180","0,90,0,90,180","90,180,90,180,90","45,135,45,135,45","135,45,135,45,135","0,45,90,135,180","0,45,0,90,180"};
-String [] behaviourInterval = {"1000,1000,1000,1000,1000","1000,1000,1000,1000,1000","500,500,500,500,500","1000,1000,1000,100,2000","1000,1000,1000,1000,4000","2000,2000,2000,2000,2000","1000,1000,1000,1000,1000","4000,4000,4000,4000,4000"};
+String [] behaviourPositions = {"0,180,0,180,0", "180,0,180,0,180", "0,90,0,90,180", "90,180,90,180,90", "45,135,45,135,45", "135,45,135,45,135", "0,45,90,135,180", "0,45,0,90,180"};
+String [] behaviourIntervals = {"1000,1000,1000,1000,1000", "1000,1000,1000,1000,1000", "500,500,500,500,500", "1000,1000,1000,100,2000", "1000,1000,1000,1000,4000", "2000,2000,2000,2000,2000", "1000,1000,1000,1000,1000", "4000,4000,4000,4000,4000"};
 
 
-int [][] behaviourChannels = {{5,14,16,31,38,45,51,60},{7,13,17,30,36,46,50,61},{0,11,18,29,35,40,49,62},{2,9,19,28,33,42,48,63},{1,10,20,27,34,41,55,56},{3,12,21,26,32,47,54,57},{4,15,22,25,39,44,53,58},{6,8,23,24,37,43,52,59}};
+int [][] behaviourChannels = {{5, 14, 16, 31, 38, 45, 51, 60}, {7, 13, 17, 30, 36, 46, 50, 61}, {0, 11, 18, 29, 35, 40, 49, 62}, {2, 9, 19, 28, 33, 42, 48, 63}, {1, 10, 20, 27, 34, 41, 55, 56}, {3, 12, 21, 26, 32, 47, 54, 57}, {4, 15, 22, 25, 39, 44, 53, 58}, {6, 8, 23, 24, 37, 43, 52, 59}};
 
 
 int state  = 0 ;
@@ -126,155 +126,55 @@ void draw() {
   textAlign(CENTER);
   text(inString, width-100, 100);
 
-  /*
-  0 no timeout no patterns
-   1
-   */
-  if (state == 0 ) {
+  boolean isInteractive = true;
+  if (isInteractive) {
+    if (state == 0 ) {
 
-    if (inString.equals("001")) {
-      state=1;
-      println("sending trigger pattern", state);
-      //pInString = inString;
-      String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-      
-      int chooser = int(random(2));
-      if(chooser==0){
-      sendRestingPatternAnywhereRows(32, addresses, 100);
-      }else{
-        sendRestingPatternAnywhereColumns(32, addresses, 100);
+      if (inString.equals("001")) {
+        state=1;
+        println("sending trigger pattern", state);
+        //pInString = inString;
+        String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
+
+        int chooser = int(random(4));
+        if (chooser==0) {
+          sendRestingPatternAnywhereRows(32, addresses, 100);
+        } else if (chooser==1) {
+          sendRestingPatternAnywhereColumns(32, addresses, 100);
+        } else if (chooser==2) {
+          sendEveryOtherToAlternating(32);
+        }else if (chooser==3) {
+          sendAllRoundTheWorld();
+        }
+
+
+        startTime=millis();
       }
-      startTime=millis();
     }
-  }
 
 
-  long timeOut = 10000;
+    long timeOut = 10000;
 
 
-  if (millis()-startTime> timeOut ) {
-    println("timeout", state);
+    if (millis()-startTime> timeOut ) {
+      // println("timeout", state);
 
-    if (state==1) {
+      if (state==1) {
 
-      state=0;
-      println("sending random", state);
-      String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
-      String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-      sendWallRestingRandom();
+        state=0;
+        println("sending random", state);
+        //String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
+        //String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
+        sendRestingPatternWall();
+      }
     }
   }
 
 
 
   pState = state;
-  //if (inString.equals(pInString)==false ) {
-
-  //  if (inString.equals("001") && state==0) {
-  //    println(" sendignn phase 1");
-  //    String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-  //    sendRestingPatternAnywhereRows(32, addresses, 100);
-  //    startTime=millis();
-  //  }
-
-  //  else if (inString.equals("000") ) {
-  //    state=0;
-
-  //  }
-  //  pInString = inString;
-  //}
-
-  //long timeOut = 5000;
-  //if (millis()-startTime>timeOut && state>0) {
-  //  if (inString.equals("001")) {
-  //    String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-  //     println("sending phase 2");
-  //     state=2;
-  //    //  sendRestingPatternAnywhereColumns(32, addresses, 100);
-  //    sendRestingPatternAnywhereColumns(32, addresses, 100);
-  //    startTime=millis();
-  //  } else if (inString.equals("000")) {
-  //    println("sending wall resting");
-  //    //();
-  //    state=0;
-  //    String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
-  //    String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-  //    sendWallRestingRandom();
-  //  }
-  //}
-
-
-  //window
-  //if (inString.equals(pInString)==false) {
-
-  //  //window active
-  //  if (inString.equals("010")) {
-  //    println("window active");
-  //    windowActive = true;
-  //    String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
-  //    String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-  //    sendCircularResting(positions, intervals) ;
-  //    startTime=millis();
-  //    windowResting = false;
-  //  }
-  //  //window inactive
-  //  else if (inString.equals("000")) {
-  //    println("window in active");
-  //    windowActive = false;
-  //  }
-
-  //  pInString = inString;
-  //}
-  //long timeOut = 10000;
-  //if (millis()-startTime>timeOut && !windowActive && !windowResting) {
-  //  sendCircularQuiver();
-  //  windowResting = true;
-  //}
 }
-void twoStateMachine() {
-  if (state == 0 ) {
 
-    if (inString.equals("001")) {
-      state=1;
-      println("sending trigger pattern", state);
-      //pInString = inString;
-      String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-      sendRestingPatternAnywhereRows(32, addresses, 100);
-      startTime=millis();
-    }
-  }
-
-
-  long timeOut = 10000;
-
-
-  if (millis()-startTime> timeOut ) {
-    println("timeout", state);
-
-    if (state==1) {
-      //now lets decide if we want to
-      if (inString.equals("001")) {
-        state=2;
-        println("sending pattern 2", state);
-        String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-        sendRestingPatternAnywhereColumns(32, addresses, 100);
-        startTime=millis();
-      } else if (inString.equals("000")) {
-        state=0;
-        println("sending random", state);
-        String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
-        String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-        sendWallRestingRandom();
-      }
-    } else if (state==2) {
-      state=0;
-      println("sending random", state);
-      String positions  =  "0,90,0,180,0";//,180,0,180,0,45,90,45,90";
-      String intervals =   "1000,4000,1000,1000,5000";//,100,400,200,100,100,100,100,500";
-      sendWallRestingRandom();
-    }
-  }
-}
 void keyReleased() {
   if (key=='a') {
     //sendWaveBackAndForth(32, 10, 50, 18);
@@ -284,28 +184,28 @@ void keyReleased() {
   } else if (key=='b') {
     sendCircularQuiver();
   } else if (key=='c') {
-    //    sendRestingPatternWindow(15);
-    //sendWaveStaggeredEveryOtherWindow(15, 10, 100, 18);
-    sendAllToPosition(15, 90);
-    // delay(1000);
-    //String [] addresses = {"/kennedyLEFTHANDSIDE", "/kennedyWINDOW"};
-    String [] addresses = {"/kennedyWINDOW", "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-    //sendRestingPatternAnywhere(32, addresses, 100 );
+
+    //  sendAllToPosition(15, 90);
+
+    String [] addresses = { "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
     sendRestingPatternAnywhereColumns(32, addresses, 100);
-    // sendRestingPatternAnywhereRows(32, addresses, 100);
-    //sendRestingPatternAnywhere(15, addresses, 0 );
   } else if (key=='d') {
     String [] addresses = {"/kennedyWINDOW", "/kennedyLEFTHANDSIDE", "/kennedyRIGHTHANDSIDE"};
-    //sendRestingPatternAnywhere(32, addresses, 100 );
-    // sendRestingPatternAnywhereColumns(32, addresses, 100);
+
     sendRestingPatternAnywhereRows(32, addresses, 100);
   } else if (key=='e') {
-    String positions  =  "0,90,0";//,180,0,180,0,45,90,45,90";
-    String intervals =   "1000,4000,1000";//,100,400,200,100,100,100,100,500";
-    sendWallRestingRandom();
+    //String positions  =  "0,90,0";//,180,0,180,0,45,90,45,90";
+    //String intervals =   "1000,4000,1000";//,100,400,200,100,100,100,100,500";
+    //sendWallRestingRandom();
+    sendRestingPatternWall();
+  } else if (key=='f') {
+    //
+    int [] behaviourIndices = {0, 4};
+    // sendNBehaviours(behaviourIndices);
+    sendEveryOtherToAlternating(32);
+  } else if (key=='g') {
+    sendAllRoundTheWorld();
   }
-
-  //sendTwitch(32, 10, 50, 8,20);
 }
 void sendTwitch(int numServos, int numPositions, int numIntervals, int intervalLength, int maxTwitchAngle) {
   String intervals = "";
@@ -409,16 +309,7 @@ void sendRestingPatternAnywhere(int numServos, String [] topics, int offSet) {
       client.publish(topics[j], serialisedJSON);
     }
 
-    //introduce delay off set to last interval
-    //String [] intervalsExp = splitTokens(intervals, ",");
-    //int firstInterval =int(intervalsExp[0]);
-    //firstInterval+=offSet;
-    //intervals = str(firstInterval)+",";
-    //for (int j=1; j<intervalsExp.length; j++) {
-    //  intervals+=intervalsExp[j];
-    //  intervals+=",";
-    //}
-    //intervals = intervals.substring(0, intervals.length()-1);
+
     delay(10);
   }
 }
@@ -498,6 +389,86 @@ void sendRestingPatternAnywhereRows(int numServos, String [] topics, int offSet)
 
 
   //
+}
+String threeFromFive(String five) {
+  String [] exploded = splitTokens(five, ",");
+  String three="";
+  three+=exploded[0];
+  three+=",";
+  three+=exploded[1];
+  three+=",";
+  three+=exploded[2];
+  return three;
+}
+void sendRestingPatternWall() {
+
+  int delayLength = 50;
+
+  //for each channel
+  for (int i=0; i<behaviourChannels.length; i++) {
+    //int i=2;
+    //for each servo on that channel
+    int numPositions = splitTokens(behaviourPositions[i], ",").length;
+    for (int j=0; j<behaviourChannels[i].length; j++) {
+
+      int index=0;
+      //if the channel is on the left hand side then the index is correct
+      if (behaviourChannels[i][j]<32) {
+        index = behaviourChannels[i][j];
+        println("left hand side", index);
+        //     formatJSON( numPositions, threeFromFive(behaviourIntervals[i]), threeFromFive(behaviourPositions[i]), "/kennedyLEFTHANDSIDE", index);
+        formatJSON( numPositions, behaviourIntervals[i], behaviourPositions[i], "/kennedyLEFTHANDSIDE", index);
+      }
+      //otherwise subtract 32 and we're on the right
+      else {
+        index = behaviourChannels[i][j]-32;
+        println("right hand side", index, index+32);
+        //   formatJSON( numPositions, threeFromFive(behaviourIntervals[i]), threeFromFive(behaviourPositions[i]), "/kennedyRIGHTHANDSIDE", index);
+        formatJSON( numPositions, behaviourIntervals[i], behaviourPositions[i], "/kennedyRIGHTHANDSIDE", index);
+      }
+      delay(delayLength);
+    }
+  }
+}
+
+void sendNBehaviours(int [] behaviourIndices) {
+
+  int delayLength = 50;
+
+  //for each channel
+  for (int i=0; i<behaviourChannels.length; i++) {
+
+    //for each servo on that channel
+    int numPositions = splitTokens(behaviourPositions[i], ",").length;
+    for (int j=0; j<behaviourChannels[i].length; j++) {
+
+      int index=0;
+      //if the channel is on the left hand side then the index is correct
+      if (behaviourChannels[i][j]<32) {
+        index = behaviourChannels[i][j];
+        println("left hand side", index);
+        //     formatJSON( numPositions, threeFromFive(behaviourIntervals[i]), threeFromFive(behaviourPositions[i]), "/kennedyLEFTHANDSIDE", index);
+
+        if (i<4) {
+          formatJSON( numPositions, behaviourIntervals[behaviourIndices[0]], behaviourPositions[behaviourIndices[0]], "/kennedyLEFTHANDSIDE", index);
+        } else {
+          formatJSON( numPositions, behaviourIntervals[behaviourIndices[1]], behaviourPositions[behaviourIndices[1]], "/kennedyLEFTHANDSIDE", index);
+        }
+      }
+      //otherwise subtract 32 and we're on the right
+      else {
+        index = behaviourChannels[i][j]-32;
+        println("right hand side", index, index+32);
+        //   formatJSON( numPositions, threeFromFive(behaviourIntervals[i]), threeFromFive(behaviourPositions[i]), "/kennedyRIGHTHANDSIDE", index);
+        if (i<4) {
+          formatJSON( numPositions, behaviourIntervals[behaviourIndices[0]], behaviourPositions[behaviourIndices[0]], "/kennedyRIGHTHANDSIDE", index);
+        } else {
+          formatJSON( numPositions, behaviourIntervals[behaviourIndices[1]], behaviourPositions[behaviourIndices[1]], "/kennedyRIGHTHANDSIDE", index);
+        }
+      }
+      delay(delayLength);
+    }
+  }
 }
 
 void sendCircularQuiver() {
@@ -593,21 +564,21 @@ void sendWallRestingRandom() {
 }
 void formatJSON(int numPositions, String intervals, String positions, String topic, int servoId) {
 
-  String serialisedJSON =  "{\"servoId\":";
+  String serialisedJSON =  "{\"i\":";
 
   serialisedJSON+=str(servoId);
-  serialisedJSON+=",\"arrLength\":";
+  serialisedJSON+=",\"a\":";
   serialisedJSON+=str(numPositions);
-  serialisedJSON+=",\"setPos\":";
+  serialisedJSON+=",\"s\":";
   serialisedJSON+="0";
-  serialisedJSON+=",\"positions\":[";
+  serialisedJSON+=",\"ps\":[";
   serialisedJSON+=positions;
 
-  serialisedJSON+="],\"intervals\":[";
+  serialisedJSON+="],\"is\":[";
   serialisedJSON+=intervals;
   serialisedJSON+="]}";
 
-  // println(serialisedJSON);
+  //println(serialisedJSON);
   client.publish(topic, serialisedJSON);
 }
 void sendRestingPattern(int numServos) {
@@ -801,31 +772,113 @@ void knob(int theValue) {
   client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
   client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
 }
+void sendEveryOtherToAlternating(int numServos) {
+  // knobValue = theValue;
+  String servoId = str(currentServo);
+  //first check our lists are the same length
+  int theValue=0;
+  String positions = cp5.get(Textfield.class, "positions").getText();
+  String intervals = cp5.get(Textfield.class, "intervals").getText();
+  int numPositions = splitTokens(positions, ",").length;
+  int numIntervals = splitTokens(intervals, ",").length;
+  int count=0;
+  boolean isOddColumn = true;
+  for (int i=0; i<numServos; i++) {
+    if (isOddColumn && i%2==0) {
+
+      println(i);
+      String serialisedJSON =  "{\"i\":";
+
+      serialisedJSON+=str(i);
+      serialisedJSON+=",\"a\":";
+      serialisedJSON+=str(1);
+      serialisedJSON+=",\"s\":";
+      serialisedJSON+="1";
+      serialisedJSON+=",\"ps\":[";
+
+      theValue=0;
+
+
+
+
+      serialisedJSON+=str(theValue);
+      serialisedJSON+="],\"is\":[";
+      serialisedJSON+=intervals;
+      serialisedJSON+="]}";
+
+      // println(serialisedJSON);
+      //client.publish("/kennedyWINDOW", serialisedJSON);
+      client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+      client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+      delay(50);
+    } else if (!isOddColumn) {
+      if (count==1 || count==3) {
+        println(i);
+        String serialisedJSON =  "{\"i\":";
+
+        serialisedJSON+=str(i);
+        serialisedJSON+=",\"a\":";
+        serialisedJSON+=str(1);
+        serialisedJSON+=",\"s\":";
+        serialisedJSON+="1";
+        serialisedJSON+=",\"ps\":[";
+
+        theValue=180;
+
+
+
+        serialisedJSON+=str(theValue);
+        serialisedJSON+="],\"is\":[";
+        serialisedJSON+=intervals;
+        serialisedJSON+="]}";
+
+        // println(serialisedJSON);
+        //client.publish("/kennedyWINDOW", serialisedJSON);
+        client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+        client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+        delay(50);
+      }
+    }
+    count++;
+    if (count==4) {
+      isOddColumn = !isOddColumn;
+      count=0;
+    }
+  }
+}
+void sendAllRoundTheWorld() {
+  for (int i=0; i<180; i+=2) {
+    sendAllToPosition(32, i);
+  }
+}
 void sendAllToPosition(int numServos, int theValue) {
   knobValue = theValue;
   String servoId = str(currentServo);
   //first check our lists are the same length
-
+  int delay=20;
   String positions = cp5.get(Textfield.class, "positions").getText();
   String intervals = cp5.get(Textfield.class, "intervals").getText();
   int numPositions = splitTokens(positions, ",").length;
   int numIntervals = splitTokens(intervals, ",").length;
   for (int i=0; i<numServos; i++) {
-    String serialisedJSON =  "{\"servoId\":";
+    String serialisedJSON =  "{\"i\":";
 
     serialisedJSON+=str(i);
-    serialisedJSON+=",\"arrLength\":";
+    serialisedJSON+=",\"a\":";
     serialisedJSON+=str(1);
-    serialisedJSON+=",\"setPos\":";
+    serialisedJSON+=",\"s\":";
     serialisedJSON+="1";
-    serialisedJSON+=",\"positions\":[";
+    serialisedJSON+=",\"ps\":[";
     serialisedJSON+=str(theValue);
-    serialisedJSON+="],\"intervals\":[";
+    serialisedJSON+="],\"is\":[";
     serialisedJSON+=intervals;
     serialisedJSON+="]}";
 
-    println(serialisedJSON);
-    client.publish("/kennedyWINDOW", serialisedJSON);
+    // println(serialisedJSON);
+    //client.publish("/kennedyWINDOW", serialisedJSON);
+    client.publish("/kennedyLEFTHANDSIDE", serialisedJSON);
+    client.publish("/kennedyRIGHTHANDSIDE", serialisedJSON);
+    delay(delay);
   }
 }
 
